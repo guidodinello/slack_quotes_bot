@@ -29,9 +29,7 @@ def message_template(user, mensaje):
     return \
 f"""{emojis['sparkles']}Daily reminder that {emojis['sparkles']}:  
 \t"{mensaje}"
-{n_ident(20)}— {user}
-
-{emojis['face-with-hand-over-mouth']}{emojis['face-with-tears-of-joy']}
+{n_ident(20)}— {user} {emojis['face-with-hand-over-mouth']}{emojis['face-with-tears-of-joy']}
 """
 
 def enviar_mensaje(user, mensaje):
