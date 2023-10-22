@@ -1,18 +1,20 @@
 ## Set up
 
 Remember to update the three tokens in the .env file.
-* The slack token can be found in the slack api page, in the "OAuth & Permissions" section, under the "Bot User OAuth Token" label (only after the app is installed in the workspace).
 
-* The channel id is the last part of the url of the channel, can be found doing right click on the channel and then "Copy link".
+-   The slack token can be found in the slack api page, in the "OAuth & Permissions" section, under the "Bot User OAuth Token" label (only after the app is installed in the workspace).
 
-Rememer to add the bot to both channels.
+-   The channel id is the last part of the url of the channel, can be found doing right click on the channel and then "Copy link".
+
+Remember to add the bot to both channels.
 
 ## Scopes
 
 The bot needs the following scopes:
-* group:history, View messages and other content in private channels that TestBot has been added to
-* chat:write, to Send messages as @TestBot
-* users:read, View people in a workspace (usernames)
+
+-   group:history, View messages and other content in private channels that TestBot has been added to
+-   chat:write, to Send messages as @TestBot
+-   reactions:write, to add emoji reactions
 
 ## Do i need to have the script running all the time?
 
@@ -24,11 +26,12 @@ If you close the script or terminate its execution, the scheduled task will stop
 
 Some options for deploying your script include:
 
-* Cloud-based platforms like AWS, Google Cloud, or Azure.
-* Hosting services like Heroku or PythonAnywhere.
-* Dedicated servers or virtual private servers (VPS).
+-   Cloud-based platforms like AWS, Google Cloud, or Azure.
+-   Hosting services like Heroku or PythonAnywhere.
+-   Dedicated servers or virtual private servers (VPS).
 
 By deploying your script, you ensure that the scheduled task continues to run even if your local machine is turned off or the script process is stopped.
 
 ## Hosting
+
 Right now it runs a daily scheduled task on python-anywhere

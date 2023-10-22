@@ -1,7 +1,8 @@
 VENV=SLACK_ENV
+PY_VERSION="3.10"
 
-
-python3 -m venv $VENV
-source ${VENV}/bin/activate
+python${PY_VERSION} -m venv "${VENV}"
+# shellcheck source=./SLACK_ENV/bin/activate
+. "./${VENV}/bin/activate"
 pip3 install -r requirements.txt
-python3 bot_slack.py
+# python${PY_VERSION} bot_slack.py

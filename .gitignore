@@ -1,2 +1,3 @@
-slack_env/
+logbook.txt
+SLACK_ENV
 .env
