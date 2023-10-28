@@ -65,7 +65,7 @@ def send_message(user, message, id):
         response = client.chat_postMessage(
             channel=to_channel,
             text=message_template(user=user, message=message),
-            icon_url="https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg/220px-%E5%90%B4%E5%8F%B8%E9%A9%AC%E5%AD%99%E6%AD%A6.jpg",
+            icon_url="https://guidodinello.pythonanywhere.com/sun_tzu.jpg",
             username="Quotes Bot"
         )
         client.reactions_add(
