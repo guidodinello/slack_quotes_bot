@@ -1,3 +1,4 @@
 logbook.txt
 SLACK_ENV
 .env
+__pycache__
