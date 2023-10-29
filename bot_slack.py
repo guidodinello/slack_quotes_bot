@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 logging.basicConfig(
     filename="error.log",
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format="%(asctime)s %(levelname)s %(name)s %(message)s"
 )
 
@@ -92,7 +92,7 @@ def is_quote(payload):
             return False
         text = payload.get("text", "").strip()
         return text.startswith("\"") or text.startswith("\'")
-    except Exception:
+    except Exception:  # pylint: disable=broad-except
         logging.exception(
             "Error while checking message: %s", json.dumps(payload, indent=4))
         return False
