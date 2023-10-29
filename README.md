@@ -1,3 +1,5 @@
+[![Code Quality Checks](https://github.com/guidodinello/slack_quotes_bot/actions/workflows/qa.yml/badge.svg?branch=main)](https://github.com/guidodinello/slack_quotes_bot/actions/workflows/qa.yml)
+
 ## Set up
 
 Remember to update the three tokens in the .env file.
