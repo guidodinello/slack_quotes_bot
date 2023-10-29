@@ -5,6 +5,7 @@ import json
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
+from logbook import get_logbook, log_message, trim_logbook
 
 logging.basicConfig(
     filename="error.log",
@@ -20,8 +21,6 @@ client = WebClient(token=slack_token)
 # Update with the correct channel IDs
 from_channel = os.environ["FROM_CHANNEL_ID"]
 to_channel = os.environ["TO_CHANNEL_ID"]
-
-LOGBOOK = "logbook.txt"
 
 reactions = [
     "moyai",
@@ -45,23 +44,6 @@ def message_template(user, message):
 {n_space(len(message))}— {user}
 ```
 """
-
-
-def log_message(msg_id):
-    with open(LOGBOOK, "a", encoding="utf-8") as f:
-        f.write(f"{msg_id}\n")
-
-
-def get_logbook():
-    with open(LOGBOOK, "r", encoding="utf-8") as f:
-        return f.read().splitlines()
-
-
-def trim_logbook(percentage, logbook):
-    trimmed_logbook = logbook[int(len(logbook) * percentage):]
-    with open(LOGBOOK, "w", encoding="utf-8") as f:
-        f.write("\n".join(trimmed_logbook))
-    return trimmed_logbook
 
 
 def send_message(user, message, msg_id):
