@@ -2,13 +2,14 @@ import os
 import random
 import logging
 import json
+import sys
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
 from logbook import get_logbook, log_message, trim_logbook
 
 logging.basicConfig(
-    filename="error.log",
+    stream=sys.stdout,
     level=logging.ERROR,
     format="%(asctime)s %(levelname)s %(name)s %(message)s"
 )
@@ -51,7 +52,8 @@ def send_message(user, message, msg_id):
         response = client.chat_postMessage(
             channel=to_channel,
             text=message_template(user=user, message=message),
-            icon_url="https://guidodinello.pythonanywhere.com/sun_tzu.jpg",
+            # pylint: disable=line-too-long
+            icon_url="https://raw.githubusercontent.com/guidodinello/slack_quotes_bot/main/sun_tzu.jpg",
             username="Quotes Bot"
         )
         client.reactions_add(
