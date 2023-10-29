@@ -1,16 +1,19 @@
 import os
 import random
-import traceback
-import datetime
+import logging
 import json
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-
-# read .env file
 from dotenv import load_dotenv
+
+logging.basicConfig(
+    filename="error.log",
+    level=logging.DEBUG,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s"
+)
+
 load_dotenv()
 
-# Update with your bot token
 slack_token = os.environ["SLACK_BOT_TOKEN"]
 client = WebClient(token=slack_token)
 
@@ -18,11 +21,11 @@ client = WebClient(token=slack_token)
 from_channel = os.environ["FROM_CHANNEL_ID"]
 to_channel = os.environ["TO_CHANNEL_ID"]
 
-logfile = "logbook.txt"
+LOGBOOK = "logbook.txt"
 
 reactions = [
     "moyai",
-    "smiling-imp",
+    "smiling_imp",
     "face_with_monocle",
     "face_with_peeking_eye",
     "face_with_hand_over_mouth",
@@ -32,7 +35,8 @@ reactions = [
 
 
 def message_template(user, message):
-    def n_space(n): return ' '*n
+    def n_space(n):
+        return ' '*n
     return \
         f"""Never forget that once, *{user}* proudly declared:
         \n
@@ -43,24 +47,24 @@ def message_template(user, message):
 """
 
 
-def log_message(id):
-    with open(logfile, "a") as f:
-        f.write(f"{id}\n")
+def log_message(msg_id):
+    with open(LOGBOOK, "a", encoding="utf-8") as f:
+        f.write(f"{msg_id}\n")
 
 
 def get_logbook():
-    with open(logfile, "r") as f:
+    with open(LOGBOOK, "r", encoding="utf-8") as f:
         return f.read().splitlines()
 
 
 def trim_logbook(percentage, logbook):
     trimmed_logbook = logbook[int(len(logbook) * percentage):]
-    with open(logfile, "w") as f:
+    with open(LOGBOOK, "w", encoding="utf-8") as f:
         f.write("\n".join(trimmed_logbook))
     return trimmed_logbook
 
 
-def send_message(user, message, id):
+def send_message(user, message, msg_id):
     try:
         response = client.chat_postMessage(
             channel=to_channel,
@@ -75,32 +79,30 @@ def send_message(user, message, id):
         )
 
         # log the message id to avoid sending it again in the future
-        log_message(id)
+        log_message(msg_id)
 
-    except SlackApiError as e:
-        print("Error al send el message: ", e.response.get("error"))
-    except:
-        traceback.print_exc()
+    except SlackApiError:
+        logging.exception("Error while sending message")
 
 
 def is_quote(payload):
     try:
-        if "files" in payload.keys():
+        # ignore not text messages
+        if "files" in payload or "client_msg_id" not in payload:
             return False
-        if "client_msg_id" not in payload.keys():
-            return False
-        text = payload.get("text")
-        return text[0] == "\"" or text[0] == "\'"
-    except:
-        print(json.dumps(payload, indent=4))
-        traceback.print_exc()
+        text = payload.get("text", "").strip()
+        return text.startswith("\"") or text.startswith("\'")
+    except Exception:
+        logging.exception(
+            "Error while checking message: %s", json.dumps(payload, indent=4))
         return False
 
 
 def chose_and_send_message():
     try:
         response = client.conversations_history(channel=from_channel)
-        messages = list(filter(lambda x: is_quote(x),
+        # filter out messages that are not quotes
+        messages = list(filter(is_quote,
                         response.get("messages")))
         if not messages:
             return
@@ -110,6 +112,7 @@ def chose_and_send_message():
             already_chosen_messages = trim_logbook(
                 percentage=.3, logbook=already_chosen_messages)
 
+        # filter out already chosen messages
         messages = list(filter(lambda x: x.get(
             "client_msg_id") not in already_chosen_messages, messages))
 
@@ -119,14 +122,16 @@ def chose_and_send_message():
         msg_text = "".join(msg_text).strip()
         username = author.replace("-", "").strip().title()
 
-        # send_message(user=username, message=msg_text, id=chosen_msg.get("client_msg_id"))
+        send_message(user=username, message=msg_text,
+                     msg_id=chosen_msg.get("client_msg_id"))
 
-    except SlackApiError as e:
-        print("Error al obtener los messages: ", e.response.get("error"))
-    except Exception as e:
-        traceback.print_exc()
+    except SlackApiError:
+        logging.exception("Error while fetching messages")
 
 
 if __name__ == "__main__":
-    if datetime.datetime.today().weekday() % 2 == 0:
+    try:
         chose_and_send_message()
+    except Exception:
+        logging.exception("General Error")
+        raise
