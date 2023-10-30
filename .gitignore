@@ -1,4 +1,5 @@
 logbook.txt
 SLACK_ENV
-.env
+.env*
+!.env.example
 __pycache__
