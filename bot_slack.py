@@ -10,7 +10,7 @@ from logbook import get_logbook, log_message, trim_logbook
 logging.basicConfig(
     filename="error.log",
     level=logging.ERROR,
-    format="%(asctime)s %(levelname)s %(name)s %(message)s"
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
 load_dotenv()
@@ -35,9 +35,9 @@ reactions = [
 
 def message_template(user, message):
     def n_space(n):
-        return ' '*n
-    return \
-        f"""Never forget that once, *{user}* proudly declared:
+        return " " * n
+
+    return f"""Never forget that once, *{user}* proudly declared:
         \n
 ```
 {message}
@@ -46,18 +46,23 @@ def message_template(user, message):
 """
 
 
+def random_icon():
+    icons = os.listdir("./images")
+    return f"https://guidodinello.pythonanywhere.com/{random.choice(icons)}"
+
+
 def send_message(user, message, msg_id):
     try:
         response = client.chat_postMessage(
             channel=to_channel,
             text=message_template(user=user, message=message),
-            icon_url="https://guidodinello.pythonanywhere.com/sun_tzu.jpg",
-            username="Quotes Bot"
+            icon_url=random_icon(),
+            username="Quotes Bot",
         )
         client.reactions_add(
             channel=to_channel,
             timestamp=response.get("ts"),
-            name=random.choice(reactions)
+            name=random.choice(reactions),
         )
 
         # log the message id to avoid sending it again in the future
@@ -73,10 +78,11 @@ def is_quote(payload):
         if "files" in payload or "client_msg_id" not in payload:
             return False
         text = payload.get("text", "").strip()
-        return text.startswith("\"") or text.startswith("\'")
+        return text.startswith('"') or text.startswith("'")
     except Exception:  # pylint: disable=broad-except
         logging.exception(
-            "Error while checking message: %s", json.dumps(payload, indent=4))
+            "Error while checking message: %s", json.dumps(payload, indent=4)
+        )
         return False
 
 
@@ -84,19 +90,23 @@ def chose_and_send_message():
     try:
         response = client.conversations_history(channel=from_channel)
         # filter out messages that are not quotes
-        messages = list(filter(is_quote,
-                        response.get("messages")))
+        messages = list(filter(is_quote, response.get("messages")))
         if not messages:
             return
 
         already_chosen_messages = get_logbook()
         if len(already_chosen_messages) == len(messages):
             already_chosen_messages = trim_logbook(
-                percentage=.3, logbook=already_chosen_messages)
+                percentage=0.3, logbook=already_chosen_messages
+            )
 
         # filter out already chosen messages
-        messages = list(filter(lambda x: x.get(
-            "client_msg_id") not in already_chosen_messages, messages))
+        messages = list(
+            filter(
+                lambda x: x.get("client_msg_id") not in already_chosen_messages,
+                messages,
+            )
+        )
 
         chosen_msg = random.choice(messages)
 
@@ -104,8 +114,9 @@ def chose_and_send_message():
         msg_text = "".join(msg_text).strip()
         username = author.replace("-", "").strip().title()
 
-        send_message(user=username, message=msg_text,
-                     msg_id=chosen_msg.get("client_msg_id"))
+        send_message(
+            user=username, message=msg_text, msg_id=chosen_msg.get("client_msg_id")
+        )
 
     except SlackApiError:
         logging.exception("Error while fetching messages")
