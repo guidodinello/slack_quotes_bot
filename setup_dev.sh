@@ -17,7 +17,9 @@ PRE_PUSH_CONTENT=$(
 echo "Running pre-push hook..."
 . ./${VENV}/bin/activate
 pylint --rcfile=.pylintrc ./**/*.py
+pylint_err_code=$?
 deactivate
+exit $pylint_err_code
 
 EOF
 )

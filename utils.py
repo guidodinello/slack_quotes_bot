@@ -1,10 +1,9 @@
 import os
+import json
+import argparse
 from dotenv import load_dotenv
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
-import argparse
-
-import json
 
 load_dotenv()
 
@@ -37,7 +36,8 @@ if __name__ == "__main__":
 
         if args.get_all:
             response = client.conversations_history(channel=channel_id)
-            json.dump(response.data, open("messages.json", "w"), indent=4)
+            with open("messages.json", "w", encoding="utf-8") as f:
+                json.dump(response.data, f, indent=4)
 
     except SlackApiError as e:
         print(f"Error: {e}")
