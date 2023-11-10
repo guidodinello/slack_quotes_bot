@@ -3,3 +3,4 @@ SLACK_ENV
 !.env.example
 *_log.txt
 __pycache__
+.vscode
