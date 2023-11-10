@@ -5,7 +5,7 @@ import json
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
-from logbook import get_logbook, log_message, trim_logbook
+from logbook import Logbook
 
 logging.basicConfig(
     filename="error.log",
@@ -21,6 +21,9 @@ client = WebClient(token=slack_token)
 # Update with the correct channel IDs
 from_channel = os.environ["FROM_CHANNEL_ID"]
 to_channel = os.environ["TO_CHANNEL_ID"]
+
+chosen_msgs_log = Logbook(logbook_path="sent_log.txt")
+bot_msgs_log = Logbook(logbook_path="bot_log.txt")
 
 reactions = [
     "moyai",
@@ -66,7 +69,8 @@ def send_message(user, message, msg_id):
         )
 
         # log the message id to avoid sending it again in the future
-        log_message(msg_id)
+        chosen_msgs_log.log_message(msg_id)
+        bot_msgs_log.log_message(response.get("ts"))
 
     except SlackApiError:
         logging.exception("Error while sending message")
@@ -94,11 +98,9 @@ def chose_and_send_message():
         if not messages:
             return
 
-        already_chosen_messages = get_logbook()
+        already_chosen_messages = chosen_msgs_log.get_logbook()
         if len(already_chosen_messages) == len(messages):
-            already_chosen_messages = trim_logbook(
-                percentage=0.3, logbook=already_chosen_messages
-            )
+            already_chosen_messages = chosen_msgs_log.trim_logbook(percentage=0.3)
 
         # filter out already chosen messages
         messages = list(
